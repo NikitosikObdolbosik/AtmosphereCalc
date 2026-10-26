@@ -1,0 +1,119 @@
+﻿<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:AtmosphereCalc.ViewModels"
+        xmlns:conv="using:AtmosphereCalc.Converters"
+        xmlns:controls="using:AtmosphereCalc.Views.Controls"
+        mc:Ignorable="d"
+        x:Class="AtmosphereCalc.Views.MainWindow"
+        x:DataType="vm:MainViewModel"
+        Title="Атмосфера ISA"
+        Width="880" Height="520"
+        MinWidth="750" MinHeight="480"
+        WindowStartupLocation="CenterScreen">
+
+    <Design.DataContext>
+        <vm:MainViewModel/>
+    </Design.DataContext>
+
+    <Window.Resources>
+        <conv:BoolToBrushConverter x:Key="ErrorForeground" TrueBrush="Red" FalseBrush="Black"/>
+        <conv:TemperatureToBrushConverter x:Key="TempCardBrush"
+                                          ColdStart="#F8FAFC" ColdEnd="#E0F2FE"
+                                          HotStart="#F8FAFC" HotEnd="#FEF2F2"/>
+        <conv:TemperatureToBrushConverter x:Key="TempIconBrush"
+                                          ColdStart="#7DD3FC" ColdEnd="#0284C7"
+                                          HotStart="#FCA5A5" HotEnd="#DC2626"/>
+    </Window.Resources>
+
+    <Window.Background>
+        <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+            <GradientStop Offset="0" Color="#FDFDFE"/>
+            <GradientStop Offset="1" Color="#F0F4F8"/>
+        </LinearGradientBrush>
+    </Window.Background>
+
+    <Grid ColumnDefinitions="340, *" Margin="30">
+
+        <StackPanel Grid.Column="0" Spacing="16" Margin="0,0,30,0">
+            <TextBlock Text="Параметры среды" FontSize="26" FontWeight="Light" Foreground="#1E293B" LetterSpacing="0.5"/>
+
+            <Border Background="White" CornerRadius="16" Padding="20">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="ВЫСОТА (МЕТРЫ)" FontSize="12" Foreground="#94A3B8" FontWeight="SemiBold" LetterSpacing="1"/>
+                    <TextBox Text="{Binding AltitudeText}"
+                             Foreground="{Binding HasError, Converter={StaticResource ErrorForeground}}"
+                             FontSize="20" FontWeight="Medium"
+                             BorderThickness="0,0,0,1" BorderBrush="#E2E8F0" Background="Transparent"/>
+
+                    <TextBlock Text="{Binding ErrorMessage}" IsVisible="{Binding HasError}"
+                               Foreground="#EF4444" FontSize="12"/>
+
+                    <Slider Value="{Binding Altitude, Mode=TwoWay}"
+                            Minimum="{Binding MinAltitude}" Maximum="{Binding MaxAltitude}"
+                            IsSnapToTickEnabled="True" TickFrequency="10" Margin="0,5,0,0"/>
+                </StackPanel>
+            </Border>
+
+            <Border Background="White" CornerRadius="16" Padding="20">
+                <Grid ColumnDefinitions="*, Auto">
+                    <StackPanel>
+                        <TextBlock Text="ДАВЛЕНИЕ" FontSize="12" Foreground="#94A3B8" FontWeight="SemiBold" LetterSpacing="1"/>
+                        <TextBlock Text="{Binding PressureText}" FontSize="22" FontWeight="SemiBold" Foreground="#334155" Margin="0,4,0,0"/>
+                    </StackPanel>
+                    <Ellipse Width="36" Height="36" Grid.Column="1" Opacity="0.15">
+                        <Ellipse.Fill>
+                            <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                                <GradientStop Offset="0" Color="#38BDF8"/>
+                                <GradientStop Offset="1" Color="#0284C7"/>
+                            </LinearGradientBrush>
+                        </Ellipse.Fill>
+                    </Ellipse>
+                </Grid>
+            </Border>
+
+            <Border Background="White" CornerRadius="16" Padding="20">
+                <Grid ColumnDefinitions="*, Auto">
+                    <StackPanel>
+                        <TextBlock Text="ПЛОТНОСТЬ" FontSize="12" Foreground="#94A3B8" FontWeight="SemiBold" LetterSpacing="1"/>
+                        <TextBlock Text="{Binding DensityText}" FontSize="22" FontWeight="SemiBold" Foreground="#334155" Margin="0,4,0,0"/>
+                    </StackPanel>
+                    <Ellipse Width="36" Height="36" Grid.Column="1" Opacity="0.15">
+                        <Ellipse.Fill>
+                            <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                                <GradientStop Offset="0" Color="#34D399"/>
+                                <GradientStop Offset="1" Color="#059669"/>
+                            </LinearGradientBrush>
+                        </Ellipse.Fill>
+                    </Ellipse>
+                </Grid>
+            </Border>
+
+            <Border CornerRadius="16" Padding="20"
+                    Background="{Binding Current.TemperatureC, Converter={StaticResource TempCardBrush}, FallbackValue={x:Null}}">
+                <Grid ColumnDefinitions="*, Auto">
+                    <StackPanel>
+                        <TextBlock Text="ТЕМПЕРАТУРА" FontSize="12" Foreground="#94A3B8" FontWeight="SemiBold" LetterSpacing="1"/>
+                        <TextBlock Text="{Binding TemperatureText}" FontSize="22" FontWeight="SemiBold" Foreground="#334155" Margin="0,4,0,0"/>
+                    </StackPanel>
+                    <Ellipse Width="36" Height="36" Grid.Column="1" Opacity="0.35"
+                             Fill="{Binding Current.TemperatureC, Converter={StaticResource TempIconBrush}, FallbackValue={x:Null}}"/>
+                </Grid>
+            </Border>
+        </StackPanel>
+
+        <Border Grid.Column="1" Background="White" CornerRadius="20" Padding="0" ClipToBounds="True">
+            <Grid RowDefinitions="Auto, *">
+                <TextBlock Grid.Row="0" Text="Градиент падения давления" FontSize="16" FontWeight="Medium" Foreground="#64748B" Margin="25,25,0,0"/>
+
+                <controls:PressureChart Grid.Row="1" Margin="0,20,0,0"
+                                        Profile="{Binding PressureProfile}"
+                                        Current="{Binding Current}"
+                                        IsMarkerVisible="{Binding !HasError}"
+                                        MaxAltitude="{Binding MaxAltitude}"
+                                        MaxPressure="{Binding MaxPressure}"/>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>
