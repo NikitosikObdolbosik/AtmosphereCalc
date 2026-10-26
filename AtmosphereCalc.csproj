@@ -5,6 +5,8 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- Тесты лежат в подпапке, но собираются отдельным проектом -->
+    <DefaultItemExcludes>$(DefaultItemExcludes);AtmosphereCalc.Tests/**</DefaultItemExcludes>
   </PropertyGroup>
 
   <ItemGroup>

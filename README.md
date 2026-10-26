@@ -22,26 +22,27 @@ View (.axaml, привязки) ◄──Binding──► ViewModel (состо�
 
 | Слой | Папка | Ответственность |
 |------|-------|-----------------|
-| **Model** | `AtmosphereCalc/Models/` | `AtmosphereCalculator` — расчёт по ISA, `AtmosphereData` — результат. Не зависит от UI. |
-| **ViewModel** | `AtmosphereCalc/ViewModels/` | `MainViewModel` — ввод высоты, валидация, синхронизация поля и слайдера, форматирование значений. Не знает о контролах Avalonia. |
-| **View** | `AtmosphereCalc/Views/` | `MainWindow.axaml` — разметка и привязки; `Controls/PressureChart` — отрисовка графика. Code-behind без бизнес-логики. |
-| Конвертеры | `AtmosphereCalc/Converters/` | Преобразование данных ViewModel в кисти (цвет температуры, цвет ошибки). |
+| **Model** | `Models/` | `AtmosphereCalculator` — расчёт по ISA, `AtmosphereData` — результат. Не зависит от UI. |
+| **ViewModel** | `ViewModels/` | `MainViewModel` — ввод высоты, валидация, синхронизация поля и слайдера, форматирование значений. Не знает о контролах Avalonia. |
+| **View** | `Views/` | `MainWindow.axaml` — разметка и привязки; `Controls/PressureChart` — отрисовка графика. Code-behind без бизнес-логики. |
+| Конвертеры | `Converters/` | Преобразование данных ViewModel в кисти (цвет температуры, цвет ошибки). |
 
 ## 2. Структура проекта
 
 ```text
-LABA-development/
-├── AtmosphereCalc.slnx          # решение
+AtmosphereCalc/
+├── AtmosphereCalc.slnx          # решение (приложение + тесты)
+├── AtmosphereCalc.csproj        # проект приложения
 ├── global.json                  # версия .NET SDK
-├── docs/                        # документация и ТЗ
-└── AtmosphereCalc/
-    ├── Models/                  # Model: физика атмосферы
-    ├── ViewModels/              # ViewModel: состояние и логика UI
-    ├── Views/                   # View: окна и контролы (.axaml)
-    │   └── Controls/            # PressureChart — график давления
-    ├── Converters/              # конвертеры для привязок
-    ├── App.axaml(.cs)           # точка входа Avalonia
-    └── Program.cs               # Main
+├── Models/                      # Model: физика атмосферы
+├── ViewModels/                  # ViewModel: состояние и логика UI
+├── Views/                       # View: окна и контролы (.axaml)
+│   └── Controls/                # PressureChart — график давления
+├── Converters/                  # конвертеры для привязок
+├── App.axaml(.cs)               # точка входа Avalonia
+├── Program.cs                   # Main
+├── AtmosphereCalc.Tests/        # юнит-тесты (xUnit)
+└── *.md                         # README, описание программы, ТЗ, гайд по Git
 ```
 
 ## 3. Запуск
@@ -67,13 +68,13 @@ brew install --cask dotnet-sdk
 В корне репозитория:
 
 ```bash
-dotnet run --project AtmosphereCalc
+dotnet run --project AtmosphereCalc.csproj
 ```
 
 Только сборка:
 
 ```bash
-dotnet build
+dotnet build AtmosphereCalc.slnx
 ```
 
 ### Из IDE
@@ -82,7 +83,26 @@ dotnet build
 * **JetBrains Rider** (Windows / macOS / Linux): открыть `AtmosphereCalc.slnx`, нажать Run.
 * **VS Code**: установить расширения *C# Dev Kit* и *Avalonia for VS Code*, открыть папку проекта и запустить через *Run and Debug*.
 
-## 4. Используемые технологии
+## 4. Тесты
+
+Юнит-тесты лежат в `AtmosphereCalc.Tests/` (xUnit):
+
+| Файл | Что проверяет |
+|------|---------------|
+| `Models/AtmosphereCalculatorTests.cs` | Значения на уровне моря, градиент температуры в тропосфере, изотермию стратосферы, давление по таблице ISA, непрерывность на 11 км, закон идеального газа, ошибку вне диапазона, профиль для графика |
+| `ViewModels/MainViewModelTests.cs` | Начальные значения, ввод с точкой и запятой, сообщения об ошибках, синхронизацию поля и слайдера, уведомления `PropertyChanged` |
+| `Converters/ConverterTests.cs` | Цвет карточки температуры и цвет текста ошибки |
+
+Запуск всех тестов из корня репозитория:
+
+```bash
+dotnet test AtmosphereCalc.slnx
+```
+
+В IDE тесты видны в окне *Test Explorer* (Visual Studio), *Unit Tests* (Rider) или *Testing* (VS Code).
+
+## 5. Используемые технологии
 
 * [Avalonia UI 12](https://avaloniaui.net/) — кроссплатформенный UI-фреймворк.
+* [xUnit](https://xunit.net/) — юнит-тесты.
 * [CommunityToolkit.Mvvm](https://learn.microsoft.com/dotnet/communitytoolkit/mvvm/) — `ObservableObject`, `[ObservableProperty]`.
