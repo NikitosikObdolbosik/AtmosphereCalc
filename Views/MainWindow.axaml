@@ -3,14 +3,15 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="using:AtmosphereCalc.ViewModels"
+        xmlns:models="using:AtmosphereCalc.Models"
         xmlns:conv="using:AtmosphereCalc.Converters"
         xmlns:controls="using:AtmosphereCalc.Views.Controls"
         mc:Ignorable="d"
         x:Class="AtmosphereCalc.Views.MainWindow"
         x:DataType="vm:MainViewModel"
         Title="Атмосфера ISA"
-        Width="880" Height="520"
-        MinWidth="750" MinHeight="480"
+        Width="1180" Height="780"
+        MinWidth="1000" MinHeight="640"
         WindowStartupLocation="CenterScreen">
 
     <Design.DataContext>
@@ -27,6 +28,51 @@
                                           HotStart="#FCA5A5" HotEnd="#DC2626"/>
     </Window.Resources>
 
+    <Window.Styles>
+        <Style Selector="TextBlock.caption">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="#94A3B8"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="LetterSpacing" Value="1"/>
+        </Style>
+        <Style Selector="TextBlock.error">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="#EF4444"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+        <Style Selector="TextBlock.value">
+            <Setter Property="FontSize" Value="22"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#334155"/>
+            <Setter Property="Margin" Value="0,4,0,0"/>
+        </Style>
+        <Style Selector="TextBlock.secondary">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Foreground" Value="#64748B"/>
+        </Style>
+        <Style Selector="TextBox.input">
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="BorderBrush" Value="#E2E8F0"/>
+            <Setter Property="Background" Value="Transparent"/>
+        </Style>
+        <Style Selector="Border.card">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="Padding" Value="20"/>
+        </Style>
+        <Style Selector="TextBlock.th">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Foreground" Value="#94A3B8"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+        </Style>
+        <Style Selector="TextBlock.td">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Foreground" Value="#334155"/>
+        </Style>
+    </Window.Styles>
+
     <Window.Background>
         <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
             <GradientStop Offset="0" Color="#FDFDFE"/>
@@ -34,86 +80,169 @@
         </LinearGradientBrush>
     </Window.Background>
 
-    <Grid ColumnDefinitions="340, *" Margin="30">
+    <Grid ColumnDefinitions="360, *" Margin="30">
 
-        <StackPanel Grid.Column="0" Spacing="16" Margin="0,0,30,0">
-            <TextBlock Text="Параметры среды" FontSize="26" FontWeight="Light" Foreground="#1E293B" LetterSpacing="0.5"/>
+        <!-- Левая колонка: ввод и текущие значения -->
+        <ScrollViewer Grid.Column="0" Margin="0,0,16,0">
+            <StackPanel Spacing="16" Margin="0,0,14,0">
+                <TextBlock Text="Параметры среды" FontSize="26" FontWeight="Light" Foreground="#1E293B" LetterSpacing="0.5"/>
 
-            <Border Background="White" CornerRadius="16" Padding="20">
-                <StackPanel Spacing="12">
-                    <TextBlock Text="ВЫСОТА (МЕТРЫ)" FontSize="12" Foreground="#94A3B8" FontWeight="SemiBold" LetterSpacing="1"/>
-                    <TextBox Text="{Binding AltitudeText}"
-                             Foreground="{Binding HasError, Converter={StaticResource ErrorForeground}}"
-                             FontSize="20" FontWeight="Medium"
-                             BorderThickness="0,0,0,1" BorderBrush="#E2E8F0" Background="Transparent"/>
+                <Border Classes="card">
+                    <StackPanel Spacing="8">
+                        <TextBlock Classes="caption" Text="ЦЕЛЕВАЯ ВЫСОТА (М)"/>
+                        <TextBox Classes="input" Text="{Binding AltitudeText}"
+                                 Foreground="{Binding HasAltitudeError, Converter={StaticResource ErrorForeground}}"/>
+                        <TextBlock Classes="error" Text="{Binding AltitudeError}" IsVisible="{Binding HasAltitudeError}"/>
+                        <!-- Границы заданы до Value: иначе слайдер обрежет высоту до своего Maximum по умолчанию (100) -->
+                        <Slider Minimum="{x:Static models:AtmosphereCalculator.MinAltitude}"
+                                Maximum="{x:Static models:AtmosphereCalculator.MaxAltitude}"
+                                Value="{Binding Altitude, Mode=TwoWay}"
+                                IsSnapToTickEnabled="True" TickFrequency="10"/>
 
-                    <TextBlock Text="{Binding ErrorMessage}" IsVisible="{Binding HasError}"
-                               Foreground="#EF4444" FontSize="12"/>
+                        <TextBlock Classes="caption" Text="ШАГ ПОСТРОЕНИЯ (М)" Margin="0,4,0,0"/>
+                        <TextBox Classes="input" Text="{Binding StepText}"
+                                 Foreground="{Binding HasStepError, Converter={StaticResource ErrorForeground}}"/>
+                        <TextBlock Classes="error" Text="{Binding StepError}" IsVisible="{Binding HasStepError}"/>
 
-                    <Slider Value="{Binding Altitude, Mode=TwoWay}"
-                            Minimum="{Binding MinAltitude}" Maximum="{Binding MaxAltitude}"
-                            IsSnapToTickEnabled="True" TickFrequency="10" Margin="0,5,0,0"/>
-                </StackPanel>
-            </Border>
+                        <TextBlock Classes="caption" Text="ТЕМПЕРАТУРА У ЗЕМЛИ (°C)" Margin="0,8,0,0"/>
+                        <TextBox Classes="input" Text="{Binding SeaLevelTemperatureText}"
+                                 Foreground="{Binding HasSeaLevelTemperatureError, Converter={StaticResource ErrorForeground}}"/>
+                        <TextBlock Classes="error" Text="{Binding SeaLevelTemperatureError}" IsVisible="{Binding HasSeaLevelTemperatureError}"/>
 
-            <Border Background="White" CornerRadius="16" Padding="20">
-                <Grid ColumnDefinitions="*, Auto">
-                    <StackPanel>
-                        <TextBlock Text="ДАВЛЕНИЕ" FontSize="12" Foreground="#94A3B8" FontWeight="SemiBold" LetterSpacing="1"/>
-                        <TextBlock Text="{Binding PressureText}" FontSize="22" FontWeight="SemiBold" Foreground="#334155" Margin="0,4,0,0"/>
+                        <Button Content="Рассчитать" Command="{Binding CalculateCommand}"
+                                Classes="accent" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                                FontSize="15" Padding="0,10" CornerRadius="10" Margin="0,12,0,0"/>
+                        <TextBlock Text="Параметры изменены — нажмите «Рассчитать»"
+                                   IsVisible="{Binding IsResultOutdated}"
+                                   FontSize="12" Foreground="#F59E0B" TextWrapping="Wrap"/>
                     </StackPanel>
-                    <Ellipse Width="36" Height="36" Grid.Column="1" Opacity="0.15">
-                        <Ellipse.Fill>
-                            <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
-                                <GradientStop Offset="0" Color="#38BDF8"/>
-                                <GradientStop Offset="1" Color="#0284C7"/>
-                            </LinearGradientBrush>
-                        </Ellipse.Fill>
-                    </Ellipse>
+                </Border>
+
+                <Grid ColumnDefinitions="*, Auto">
+                    <TextBlock Text="{Binding CurrentAltitudeText}" FontSize="16" FontWeight="Medium"
+                               Foreground="#64748B" VerticalAlignment="Center"/>
+                    <Border Grid.Column="1" Background="#E0E7FF" CornerRadius="12" Padding="12,4">
+                        <TextBlock Text="{Binding LayerText}" FontSize="13" FontWeight="SemiBold" Foreground="#4338CA"/>
+                    </Border>
+                </Grid>
+
+                <Border Classes="card"
+                        Background="{Binding Current.TemperatureC, Converter={StaticResource TempCardBrush}, FallbackValue={x:Null}}">
+                    <Grid ColumnDefinitions="*, Auto">
+                        <StackPanel>
+                            <TextBlock Classes="caption" Text="ТЕМПЕРАТУРА"/>
+                            <TextBlock Classes="value" Text="{Binding TemperatureText}"/>
+                            <TextBlock Classes="secondary" Text="{Binding TemperatureKText}"/>
+                        </StackPanel>
+                        <Ellipse Grid.Column="1" Width="36" Height="36" Opacity="0.35"
+                                 Fill="{Binding Current.TemperatureC, Converter={StaticResource TempIconBrush}, FallbackValue={x:Null}}"/>
+                    </Grid>
+                </Border>
+
+                <Border Classes="card">
+                    <Grid ColumnDefinitions="*, Auto">
+                        <StackPanel>
+                            <TextBlock Classes="caption" Text="ДАВЛЕНИЕ"/>
+                            <TextBlock Classes="value" Text="{Binding PressureText}"/>
+                            <TextBlock Classes="secondary" Text="{Binding PressureHpaText}"/>
+                        </StackPanel>
+                        <Ellipse Grid.Column="1" Width="36" Height="36" Opacity="0.15">
+                            <Ellipse.Fill>
+                                <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                                    <GradientStop Offset="0" Color="#38BDF8"/>
+                                    <GradientStop Offset="1" Color="#0284C7"/>
+                                </LinearGradientBrush>
+                            </Ellipse.Fill>
+                        </Ellipse>
+                    </Grid>
+                </Border>
+
+                <Border Classes="card">
+                    <Grid ColumnDefinitions="*, Auto">
+                        <StackPanel>
+                            <TextBlock Classes="caption" Text="ПЛОТНОСТЬ"/>
+                            <TextBlock Classes="value" Text="{Binding DensityText}"/>
+                        </StackPanel>
+                        <Ellipse Grid.Column="1" Width="36" Height="36" Opacity="0.15">
+                            <Ellipse.Fill>
+                                <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                                    <GradientStop Offset="0" Color="#34D399"/>
+                                    <GradientStop Offset="1" Color="#059669"/>
+                                </LinearGradientBrush>
+                            </Ellipse.Fill>
+                        </Ellipse>
+                    </Grid>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Правая колонка: график и таблица профиля -->
+        <Grid Grid.Column="1" RowDefinitions="*, 20, 280">
+
+            <Border Grid.Row="0" Background="White" CornerRadius="20" ClipToBounds="True">
+                <Grid RowDefinitions="Auto, *">
+                    <Grid ColumnDefinitions="*, Auto, Auto" Margin="25,20,25,0">
+                        <TextBlock Text="Профиль по высоте" FontSize="16" FontWeight="Medium"
+                                   Foreground="#64748B" VerticalAlignment="Center"/>
+                        <ComboBox Grid.Column="1" MinWidth="160"
+                                  ItemsSource="{Binding ChartOptions}"
+                                  SelectedItem="{Binding SelectedChartOption}"/>
+                        <Button Grid.Column="2" Content="Сохранить PNG" Command="{Binding ExportPngCommand}"
+                                CornerRadius="10" Margin="10,0,0,0"/>
+                    </Grid>
+
+                    <controls:ProfileChart Name="Chart" Grid.Row="1" Margin="8,8,8,12"
+                                           Points="{Binding ChartPoints}"
+                                           Marker="{Binding ChartMarker}"
+                                           MarkerText="{Binding ChartMarkerText}"
+                                           XAxisTitle="{x:Static vm:MainViewModel.ChartXAxisTitle}"
+                                           YAxisTitle="{Binding ChartYAxisTitle}"
+                                           Caption="{Binding ChartCaption}"/>
                 </Grid>
             </Border>
 
-            <Border Background="White" CornerRadius="16" Padding="20">
-                <Grid ColumnDefinitions="*, Auto">
-                    <StackPanel>
-                        <TextBlock Text="ПЛОТНОСТЬ" FontSize="12" Foreground="#94A3B8" FontWeight="SemiBold" LetterSpacing="1"/>
-                        <TextBlock Text="{Binding DensityText}" FontSize="22" FontWeight="SemiBold" Foreground="#334155" Margin="0,4,0,0"/>
-                    </StackPanel>
-                    <Ellipse Width="36" Height="36" Grid.Column="1" Opacity="0.15">
-                        <Ellipse.Fill>
-                            <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
-                                <GradientStop Offset="0" Color="#34D399"/>
-                                <GradientStop Offset="1" Color="#059669"/>
-                            </LinearGradientBrush>
-                        </Ellipse.Fill>
-                    </Ellipse>
+            <Border Grid.Row="2" Background="White" CornerRadius="20" Padding="20,16">
+                <Grid RowDefinitions="Auto, Auto, *">
+                    <Grid ColumnDefinitions="*, Auto, Auto">
+                        <TextBlock Text="Таблица профиля" FontSize="16" FontWeight="Medium"
+                                   Foreground="#64748B" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="1" Text="{Binding ExportStatus}" FontSize="12"
+                                   Foreground="#64748B" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                        <Button Grid.Column="2" Content="Экспорт в CSV" Command="{Binding ExportCsvCommand}"
+                                CornerRadius="10"/>
+                    </Grid>
+
+                    <Grid Grid.Row="1" ColumnDefinitions="*,*,*,*,*,*,*" Margin="8,12,8,6">
+                        <TextBlock Grid.Column="0" Classes="th" Text="ВЫСОТА, М"/>
+                        <TextBlock Grid.Column="1" Classes="th" Text="T, °C"/>
+                        <TextBlock Grid.Column="2" Classes="th" Text="T, K"/>
+                        <TextBlock Grid.Column="3" Classes="th" Text="P, ПА"/>
+                        <TextBlock Grid.Column="4" Classes="th" Text="P, ГПА"/>
+                        <TextBlock Grid.Column="5" Classes="th" Text="ρ, КГ/М³"/>
+                        <TextBlock Grid.Column="6" Classes="th" Text="СЛОЙ"/>
+                    </Grid>
+
+                    <ScrollViewer Grid.Row="2">
+                        <ItemsControl ItemsSource="{Binding ProfileRows}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:ProfileRowViewModel">
+                                    <Border BorderBrush="#F1F5F9" BorderThickness="0,1,0,0" Padding="8,5">
+                                        <Grid ColumnDefinitions="*,*,*,*,*,*,*">
+                                            <TextBlock Grid.Column="0" Classes="td" Text="{Binding Altitude}"/>
+                                            <TextBlock Grid.Column="1" Classes="td" Text="{Binding TemperatureC}"/>
+                                            <TextBlock Grid.Column="2" Classes="td" Text="{Binding TemperatureK}"/>
+                                            <TextBlock Grid.Column="3" Classes="td" Text="{Binding Pressure}"/>
+                                            <TextBlock Grid.Column="4" Classes="td" Text="{Binding PressureHpa}"/>
+                                            <TextBlock Grid.Column="5" Classes="td" Text="{Binding Density}"/>
+                                            <TextBlock Grid.Column="6" Classes="td" Text="{Binding Layer}"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
                 </Grid>
             </Border>
-
-            <Border CornerRadius="16" Padding="20"
-                    Background="{Binding Current.TemperatureC, Converter={StaticResource TempCardBrush}, FallbackValue={x:Null}}">
-                <Grid ColumnDefinitions="*, Auto">
-                    <StackPanel>
-                        <TextBlock Text="ТЕМПЕРАТУРА" FontSize="12" Foreground="#94A3B8" FontWeight="SemiBold" LetterSpacing="1"/>
-                        <TextBlock Text="{Binding TemperatureText}" FontSize="22" FontWeight="SemiBold" Foreground="#334155" Margin="0,4,0,0"/>
-                    </StackPanel>
-                    <Ellipse Width="36" Height="36" Grid.Column="1" Opacity="0.35"
-                             Fill="{Binding Current.TemperatureC, Converter={StaticResource TempIconBrush}, FallbackValue={x:Null}}"/>
-                </Grid>
-            </Border>
-        </StackPanel>
-
-        <Border Grid.Column="1" Background="White" CornerRadius="20" Padding="0" ClipToBounds="True">
-            <Grid RowDefinitions="Auto, *">
-                <TextBlock Grid.Row="0" Text="Градиент падения давления" FontSize="16" FontWeight="Medium" Foreground="#64748B" Margin="25,25,0,0"/>
-
-                <controls:PressureChart Grid.Row="1" Margin="0,20,0,0"
-                                        Profile="{Binding PressureProfile}"
-                                        Current="{Binding Current}"
-                                        IsMarkerVisible="{Binding !HasError}"
-                                        MaxAltitude="{Binding MaxAltitude}"
-                                        MaxPressure="{Binding MaxPressure}"/>
-            </Grid>
-        </Border>
+        </Grid>
     </Grid>
 </Window>

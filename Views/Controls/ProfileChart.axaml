@@ -1,9 +1,13 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="AtmosphereCalc.Views.Controls.PressureChart">
+             x:Class="AtmosphereCalc.Views.Controls.ProfileChart"
+             Background="White">
 
-    <Canvas Name="GraphCanvas">
-        <Polygon Name="PressureArea">
+    <Canvas Name="GraphCanvas" ClipToBounds="True">
+        <!-- Сетка, деления и подписи осей; заполняется из кода при каждой перерисовке -->
+        <Canvas Name="AxisLayer"/>
+
+        <Polygon Name="ValueArea">
             <Polygon.Fill>
                 <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
                     <GradientStop Offset="0" Color="#253B82F6"/>
@@ -12,17 +16,17 @@
             </Polygon.Fill>
         </Polygon>
 
-        <Polyline Name="PressureCurve" Stroke="#93C5FD" StrokeThickness="3" StrokeJoin="Round"/>
+        <Polyline Name="ValueCurve" Stroke="#93C5FD" StrokeThickness="3" StrokeJoin="Round"/>
 
         <Border Name="CurrentPointMarker" Width="12" Height="12"
                 Background="White" BorderBrush="#3B82F6" BorderThickness="3"
                 CornerRadius="6" Margin="-6,-6,0,0"/>
 
-        <Border Name="MarkerLabel" CornerRadius="20" Padding="12,6" Margin="15,-40,0,0">
+        <Border Name="MarkerLabel" CornerRadius="20" Padding="12,6">
             <Border.Background>
                 <SolidColorBrush Color="#0F172A" Opacity="0.85"/>
             </Border.Background>
-            <TextBlock Name="MarkerText" Foreground="White" FontSize="12" FontWeight="Medium"/>
+            <TextBlock Name="MarkerLabelText" Foreground="White" FontSize="12" FontWeight="Medium"/>
         </Border>
     </Canvas>
 </UserControl>
