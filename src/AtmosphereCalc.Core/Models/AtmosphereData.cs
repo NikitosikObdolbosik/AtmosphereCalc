@@ -8,4 +8,9 @@ public sealed record AtmosphereData(
     double Pressure,
     double Density,
     double TemperatureC,
-    double TemperatureK);
+    double TemperatureK,
+    AtmosphereLayer Layer)
+{
+    /// <summary>Давление в гектопаскалях.</summary>
+    public double PressureHpa => Pressure / 100.0;
+}
