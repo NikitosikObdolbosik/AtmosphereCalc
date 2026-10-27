@@ -1,4 +1,10 @@
 <Solution>
-  <Project Path="AtmosphereCalc.csproj" />
-  <Project Path="AtmosphereCalc.Tests/AtmosphereCalc.Tests.csproj" />
+  <Folder Name="/src/">
+    <Project Path="src/AtmosphereCalc.Core/AtmosphereCalc.Core.csproj" />
+    <Project Path="src/AtmosphereCalc.UI/AtmosphereCalc.UI.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/AtmosphereCalc.Core.Tests/AtmosphereCalc.Core.Tests.csproj" />
+    <Project Path="tests/AtmosphereCalc.UI.Tests/AtmosphereCalc.UI.Tests.csproj" />
+  </Folder>
 </Solution>

@@ -1,0 +1,9 @@
+<!-- Общие настройки для всех проектов решения (src/ и tests/) -->
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <!-- Версия программы попадает в экспортируемые файлы -->
+    <Version>1.0.0</Version>
+  </PropertyGroup>
+</Project>
