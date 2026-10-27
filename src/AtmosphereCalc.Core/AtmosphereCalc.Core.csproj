@@ -1,0 +1,13 @@
+<!--
+  Core: физическая модель, ViewModel и интерфейсы сервисов.
+  Намеренно без Avalonia — независимость ядра и ViewModel от UI видна по зависимостям проекта.
+-->
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>AtmosphereCalc</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+  </ItemGroup>
+</Project>
